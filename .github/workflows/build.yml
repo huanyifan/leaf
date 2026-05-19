@@ -1,0 +1,33 @@
+name: Build leaf
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build leaf-cli
+      run: cargo build -p leaf-cli --release
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: leaf-${{ matrix.os }}
+        path: target/release/leaf
